@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the code from your SCM (e.g., GitHub)
+                checkout scm
+            }
+        }
+        stage('Maven Build') {
+            steps {
+                // Use Maven to clean and package the project
+                sh 'mvn clean package'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image locally
+                    sh 'docker build -t auth-course:latest .'
+                }
+            }
+        }
+        stage('Deploy Docker Image Locally') {
+            steps {
+                script {
+                    // Stop and remove the old container if it's running
+                    sh '''
+                    if [ $(docker ps -q -f name=auth-course) ]; then
+                        docker stop auth-course
+                        docker rm auth-course
+                    fi
+                    '''
+
+                    // Run the new container from the local Docker image
+                    sh '''
+                    docker run -d --name auth-course -p 8080:8080 auth-course:latest
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up unused Docker resources
+            sh 'docker system prune -f'
+        }
+    }
+}
