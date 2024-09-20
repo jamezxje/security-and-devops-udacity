@@ -1,5 +1,6 @@
 package com.example.demo.model.requests;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,8 +8,13 @@ import lombok.Setter;
 @Setter
 public class ModifyCartRequest {
 
-    private String username;
-    private long itemId;
-    private int quantity;
+  @JsonProperty
+  private String username;
+
+  @JsonProperty
+  private long itemId;
+
+  @JsonProperty
+  private int quantity;
 
 }
